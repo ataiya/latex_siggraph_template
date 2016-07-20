@@ -1,0 +1,88 @@
+\usepackage{overpic}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+%%
+%% general comments
+%% 
+\usepackage{color}
+\definecolor{turquoise}{cmyk}{0.65,0,0.1,0.3}
+\definecolor{purple}{rgb}{0.65,0,0.65}
+\definecolor{dark_green}{rgb}{0, 0.5, 0}
+\definecolor{orange}{rgb}{0.8, 0.6, 0.2}
+\definecolor{red}{rgb}{0.8, 0.2, 0.2}
+\definecolor{blueish}{rgb}{0.0, 0.7, 1}
+\definecolor{light_gray}{rgb}{0.7, 0.7, .7}
+\definecolor{pink}{rgb}{1, 0, 1}
+
+%%
+%% general comments
+%% 
+\newcommand{\hidden}[1]{{}} %< discards
+\newcommand{\edit}[1]{\textcolor{dark_green}{#1}}
+\newcommand{\LEGACY}[1]{\textcolor{orange}{[LEGACY] #1}}
+\newcommand{\todo}[1]{{\color{red}#1}}
+\newcommand{\TODO}[1]{{\color{red}[TODO: #1]}}
+\newcommand{\ADDRESSED}[1]{{}}
+\newcommand{\copypaste}[1]{{#1}}
+\newcommand{\revision}[1]{{#1}}
+%\newcommand{\revision}[1]{{\color{red}#1}}
+
+%%
+%% personal comments
+%% 
+\newcommand{\GM}[1]{{\color{orange}[GM: #1]}} % giorgio
+\newcommand{\AT}[1]{{\color{blueish}[AT: #1]}} % andrea
+\newcommand{\NP}[1]{{\color{turquoise}[NP: #1]}} % nico
+\newcommand{\PC}[1]{{\color{dark_green}[PC: #1]}} % paolo
+\newcommand{\EP}[1]{{\color{orange}[EP: #1]}} % enrico
+
+%%
+%% shortcut for references
+%% 
+\newcommand{\Fig}[1]{Figure~\ref{fig:#1}}
+\newcommand{\Figure}[1]{Figure~\ref{fig:#1}}
+\newcommand{\Eq}[1]{Equation~\ref{eq:#1}}
+\newcommand{\Equation}[1]{Equation~\ref{eq:#1}}
+\newcommand{\Sec}[1]{Section~\ref{sec:#1}}
+\newcommand{\Section}[1]{Section~\ref{sec:#1}}
+\newcommand{\Appendix}[1]{Appendix~\ref{app:#1}}
+
+%%
+%% Inlined annotation of paragraph content
+%% 
+\newcommand{\brief}[1]{} % ONLY LATEX VISIBLE
+% \newcommand{\brief}[1]{{\flushright\small{\vspace{-7pt}\color{light_gray} [\textbf{#1}]}\\}}
+
+%%
+%% SHOW PATH OF INSERTED IMAGES
+%% 
+\usepackage{currfile}
+\newcommand{\putfilename}{}
+% \newcommand{\putfilename}{ \put(-3,0){\rotatebox{90}{\color{red}\currfilename}}}
+
+%%
+%% MATH STUFF
+%% 
+\usepackage{amsmath}
+\let\vec=\mathbf
+\let\mat=\vec
+\newcommand{\F}{F} % dataframe
+\newcommand{\normal}{\mathcal{N}}
+\newcommand{\vertex}{\mathbf{v}}
+\newcommand{\abs}[1]{\left| #1 \right|}
+\newcommand{\norm}[1]{\left\Vert {#1} \right\Vert}
+% hack to use computer modern font for bold greek letters
+\SetSymbolFont{letters}{bold}{OML}{cmm}{b}{it}
+\SetSymbolFont{operators}{bold}{OT1}{cmr}{bx}{n}
+% Small math symbols
+\newcommand{\unaryminus}{\scalebox{0.5}[1.0]{\( - \)}} % small "-"
+\newcommand{\smallless}{\scalebox{0.5}[.5]{\(<\)}} % small "<"
+% \underset{x}{\operatorname{argmin}} 
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+% 2x2 matrix block
+\newcommand{\matblocktwo}[4]{ \left[ \begin{array}{c|c} #1 & #2 \\ \hline #3 & #4 \end{array} \right]}
+
+
+

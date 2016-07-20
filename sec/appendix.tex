@@ -1,0 +1,267 @@
+% \clearpage
+% \newpage
+\appendix
+% \section{Optimization Details}
+% \label{sec:app}
+
+\vspace{-.15in}
+\section{Projective v.s. subspace PCA}
+\label{app:pca}
+In \Equation{pcareg}, minimizing $E_{\text{pose}}$ over $\parssub$ has a closed form solution:
+%
+\begin{eqnarray*}
+\parssub = (\omegapcareg\boldsymbol{\Sigma}^2 + \omegapcaproj\mathbf{I})^{-1}(\omegapcaproj\proj_\posespace^T (\pars - \boldsymbol{\mu})).  
+\label{eq:pcaproj2}
+\end{eqnarray*}
+%
+%As $\boldsymbol{\Sigma}$ is a diagonal matrix, $(\omegapcareg\boldsymbol{\Sigma}^2 + \omegapcaproj\mathbf{I})$ has a trivial inverse. 
+We can therefore rewrite our data-driven energy only as a function of $\pars$ as 
+% 
+\begin{eqnarray*}
+E_{\text{pose}}  = \omegapcaproj \|(\pars - \boldsymbol{\mu}) - \proj_\posespace\mathbf{M}\proj_\posespace^T (\pars - \boldsymbol{\mu})\|_2^2,   
+\label{eq:pcaproj3}
+\end{eqnarray*}
+% 
+where $\mathbf{M} = \omegapcaproj(\omegapcareg\boldsymbol{\Sigma}^2 + \omegapcaproj\mathbf{I})^{-1}$.
+%Note that $\parssub = \proj_\posespace^T\pars$ is an orthogonal projection only when $\omegapcareg = 0$. 
+Our formulation does not only allow the solution to stay close to the pose space, but also penalizes unlikely poses replacing the conventional orthogonal projection matrix $\proj_\posespace\proj_\posespace^T$ by a matrix $\proj_\posespace\mathbf{M}\proj_\posespace^T$ taking into account the PCA standard deviation. Note that when $\omegapcareg=0$ we retrieve the orthogonal projection  $\proj_\posespace\proj_\posespace^T$.
+
+\vspace{-.15in}
+\section{Jacobians}
+\label{app:jacobians}
+
+\paragraph*{Perspective projection Jacobian.} 
+% \MB{The term projection Jacobian is not clear enough, since you use projections all over the place. Use Jacobian of perspective projection. Put a citation where you got this formulation from.}
+% \MB{Better not call it $\mathbf{J}_{\mathrm{proj}}$, but $\mathbf{J}_{\mathrm{persp}}$ to make ``visually'' clear that it is not, e.g., the Jacobian of $E_{\mathrm{Projection}}$}
+The  Jacobian of the perspective projection is a $[2\times3]$ matrix depending from the focal length of the camera $\mathbf{f}=[f_x, f_y]$ and the 3D position $\point$ at which it is evaluated~\cite{Bouaziz_eg2014}:
+\begin{equation*}
+    \Jproj(\point) = 
+    %
+    \left[
+    \begin{matrix}
+        f_x/\point_z & 0   & -\point_x f_x / \point_z^2 \\
+        0   & f_y/\point_z & -\point_y f_y / \point_z^2 \\
+    \end{matrix}
+    \right]
+\end{equation*}
+% 
+% 
+%  
+% 
+%  
+\paragraph*{Skeleton Jacobian.} The skeleton Jacobian $\Jskel(\point)$ is a $[3\times\numpars]$ matrix. For each constraint, the bone identifier $b=id(\point)$ associated to each 3D point $\point$ determines the affected portion of the kinematic chain. That is, it identifies the non-zero columns of $\Jskel(\point)$. As discussed in \cite{buss_04}, the i-th column of $\Jskel(\point)$ contains the linearization of i-th joint about $\point$.
+%\MB{This is confusing. Are you linearizing w.r.t.\ a 3D point $\point$ or the kinematic parameters $\pars$? And what is the linearization of a joint?}
+% 
+% 
+%  
+% 
+%  
+\vspace{-.15in}
+\section{Approximation using linearized function.}
+\label{app:linfunction}
+To approximate the following energies, we approximate $E=\|\mathbf{f}(\mathbf{x})\|_2^2$ by linearizing $\mathbf{f}(\mathbf{x})$ as
+\begin{equation*}
+\mathbf{f}(\mathbf{x}+\delta\mathbf{x})|_{\mathbf{x}} \approx \mathbf{f}(\mathbf{x}) + \jacobian(\mathbf{x})\delta\mathbf{x}.
+\end{equation*}
+The approximation is then expressed as 
+\begin{equation}
+\label{eq:linearization}
+\bar{E} = \|\mathbf{f}(\mathbf{x}) + \jacobian(\mathbf{x})\delta\mathbf{x}\|_2^2.
+\end{equation}
+\paragraph*{Joint bounds.} 
+The joint bounds energy can be written as
+%
+\begin{align*}
+\bar{E}_{\text{bound}} = \omegabounds \sum_{\theta_i \in \pars} &\overline{\chi}(i)(\delta\pars_i + \pars_i - \overline{\pars}_i)^2 + \nonumber \\
+ &\underline{\chi}(i)(\delta\pars_i + \pars_i - \underline{\pars}_i)^2
+\end{align*}
+% 
+% Joint bounds constraints are only added when $\pars_i$ is lower (higher) than the acceptable lower (higher) bound:
+
+% A small constant $\epsilon$ is added to the target angle to ensure the solution remains on the feasible side of the constraint:
+% \begin{eqnarray}
+% \omegabounds \left[ \delta\pars_i - (\overline{\pars}_i-\pars_i-\epsilon)\right] = 0
+% \\
+% \omegabounds \left[ \delta\pars_i - (\underline{\pars}_i-\pars_i+\epsilon)\right] = 0
+% \end{eqnarray}
+% %
+% 
+%  
+% 
+%
+\paragraph*{Temporal coherence.} To compute the velocity $\dot \skelpoint(\pars)$ and the acceleration $\ddot \skelpoint(\pars)$ of a point $\skelpoint$ attached to the kinematic chain, we use finite differences. The linearization of the temporal energy becomes
+% 
+\begin{align*}
+\bar{E}_{\text{temporal}} &= \omegatemporalst \sum_{\skelpoint \in \mathcal{K}} \|\Jskel(\skelpoint)\delta\pars + (\skelpoint - \skelpoint_{t-1})\|_2^2 \\
+&+\omegatemporalnd \sum_{\skelpoint \in \mathcal{K}} \|\Jskel(\skelpoint)\delta\pars + (\skelpoint - 2\skelpoint_{t-1} + \skelpoint_{t-2})\|_2^2,
+\end{align*}
+% \MB{Define what  are, even if it's clear from the context.}
+where $\skelpoint_{t-1}$ and $\skelpoint_{t-2}$ are the position of such points from the two previously optimized frames.
+% 
+% 
+%  
+% 
+%  
+\paragraph*{Data-driven (PCA).} 
+The data-driven projection energy can be rewritten as
+% To take into account of the PCA space in our optimization it is not sufficient to simply compute the projection $\tilde\pars$ and then optimize for its projection in an alternating fashion. Instead we first compute $\tilde\pars=\mathbf{P}^t\pars$, and then jointly optimize for $\hat\pars = [\pars, \tilde\pars]$ the concatenation of unknowns in full and latent space, resulting in the linear equations:
+% The energy to optimize for can then be rewritten as $\|\mathbf{I}, -\mathbf{P}\hat\pars\|_2^2$, whose linearization produces the constraints:
+% \begin{equation*}
+% \bar{E}_{\text{pose}}  = \omegapcaproj \|\begin{bmatrix}\mathbf{I} & -\proj_\posespace\mathbf{M}\proj_\posespace^T \end{bmatrix}^T(\delta{\pars} + \pars - \boldsymbol{\mu}) \|_2^2.
+% \end{equation*}
+\begin{equation*}
+\bar{E}_{\text{pose}}  = \omegapcaproj \norm{(\mathbf{I}  - \proj_\posespace\mathbf{M}\proj_\posespace^T)(\delta{\pars} + \pars - \boldsymbol{\mu}) }_2^2.
+\end{equation*}
+% \MB{adjust size of left and right $\|$. maybe use my norm-command in tweaks.tex}
+%
+%
+\vspace{-.3in}
+\section{Approximation using Linearized $\ell_2$ Distance.}
+\label{app:lindistance}
+To approximate the following energies, we first reformulate the quadratic form $E = \|\mathbf{f}(\mathbf{x})\|_2^2$ as $E = (\|\mathbf{f}(\mathbf{x})\|_2)^2$. We then linearize the $\ell_2$ norm $\|\mathbf{f}(\mathbf{x})\|_2$ as
+\begin{equation*}
+\|\mathbf{f}(\mathbf{x}+\delta\mathbf{x})\|_2|_{\mathbf{x}} \approx \|\mathbf{f}(\mathbf{x})\|_2 + \frac{\mathbf{f}(\mathbf{x})^T}{\|\mathbf{f}(\mathbf{x})\|_2}\jacobian(\mathbf{x})\delta\mathbf{x}.
+\end{equation*}
+The approximation is then expressed as 
+\begin{equation*}
+\bar{E} = \left( \|\mathbf{f}(\mathbf{x})\|_2 + \frac{\mathbf{f}(\mathbf{x})^T}{\|\mathbf{f}(\mathbf{x})\|_2}\jacobian(\mathbf{x})\delta\mathbf{x} \right)^2.
+\end{equation*}
+When the energy is of the form $E = \|\mathbf{x} - \Pi(\mathbf{x})\|_2^2$ where $\Pi(\mathbf{x})$ is a projection operator, Bouaziz et al.~\shortcite{Bouaziz_sgp12} showed that $\mathbf{f}(\mathbf{x})^T\jacobian(\mathbf{x}) = \mathbf{f}(\mathbf{x})^T$. In this case, the approximate energy can be simplified as 
+\begin{equation*}
+\label{eq:linproj}
+\bar{E} = \left( \|\mathbf{f}(\mathbf{x})\|_2 + \frac{\mathbf{f}(\mathbf{x})^T}{\|\mathbf{f}(\mathbf{x})\|_2}\delta\mathbf{x} \right)^2.
+\end{equation*}
+Contrary to the approximation in \Equation{linearization}, the Jacobian of the projection function does not need to be known. This formulation is useful as the approximation in the equation above 
+% \Equation{linproj}
+only needs to evaluate the projection function and therefore allows to use arbitrarily complex projection functions.
+% 
+\paragraph*{Point cloud alignment.} 
+%
+% \begin{equation}
+%     E_{\text{3D}}  = \omegacloud \sum_{\point \in \PointsSensor} \| \point - \proj_{\handmodel}(\point,\pars) \|_2,
+% \label{eq:align3d}
+% \end{equation}
+%
+We linearize the point cloud alignment energy as 
+%
+\begin{equation*}
+\bar{E}_{\text{3D}}  = \omegacloud \sum_{\point \in \PointsSensor} \omega_{\text{re}} (\mathbf{n}^T(\Jskel(\mathbf{y}) \delta\pars + d))^2,
+% \label{eq:jacobian3d}
+\end{equation*}
+%\MB{Confusing formulation: If you linearize the energy, then the linearized energy should be a linear function. It's quadratic. What exactly are you doing? What the reader needs, and what we should report, are the first-order partial derivatives that one needs to build the global Jacobian. Same issue below. }
+%
+where $\mathbf{y} = \proj_{\handmodel}(\point,\pars)$ is the closest point from $\point$ on the hand model $\handmodel$ with hand pose $\pars$. $\mathbf{n}$ is the surface normal at $\mathbf{y}$, and $\mathbf{d} = (\mathbf{y} - \point)$.
+%\MB{Confusing to see a normal vector here. Point-point energies don't employ normals, and their derivatives should not use normals, too. This is a point-plane distance, which you wrote not to use.}
+ As we minimize the $\ell_2$ norm we use a weight $\omega_{\text{re}}=1/\|\mathbf{d}\|_2$ in an iteratively re-weighted least squares fashion~\cite{bouaziz_sgp13}.
+%\MB{should be $\omega_{\mathrm{re}}$ for the font-addicts.}
+%\MB{Rephrase to avoid confusion with the l1 stuff. If you had a residual vector of point-point differences $r=(r_1, \dots, r_n) \in R^{3n}$, with each $r_i \in R^3$, then you denote the minimization of $\|r\|_1$ as an l1 minimization. However, this is not what you are doing since you use the 2-norm for each point, and an l1-like summation over all points. }
+% \begin{equation}
+% d = \|\point - \proj_{\handmodel}(\point,\pars)\|_2
+% \label{eq:jacobian3d}
+% \end{equation}
+% \begin{equation}
+% \mathbf{n} = \frac{\point - \proj_{\handmodel}(\point,\pars)}{\|\point - \proj_{\handmodel}(\point,\pars)\|_2}
+% \label{eq:jacobian3d}
+% \end{equation}
+%
+% 
+%  
+% 
+%  
+\paragraph*{Silhouette alignment.} The silhouette energy is expressed in screen space, and therefore employs the perspective projection Jacobian $\Jproj(\point)$, where $\point$ is the 3D location of a rendered silhouette point $\pixel$. Similarly to the point cloud alignment the linearization can be expressed as
+% \MB{You refer to point cloud alignment, but that is not yet discussed. Swap the two paragraphs.}
+\begin{equation*}
+\bar{E}_{\text{2D}} = \omegasilhouette \sum_{\pixel \in \SilhoRender} (\mathbf{n}^T(\Jproj(\point) \Jskel(\point) \delta\pars + d))^2,
+% \label{eq:jacobian2d}
+\end{equation*}
+where $\mathbf{d} = (\pixel - \mathbf{q})$ with $\mathbf{q} = \proj_{\SilhoSensor} (\pixel,\pars)$, and $\mathbf{n}$ is the 2D normal at the sensor silhouette location $\mathbf{q}$.
+% where,
+% \begin{equation}
+% d = \|\pixel - \proj_{\SilhoSensor}(\pixel,\pars)\|_2,
+% \label{eq:jacobian3d}
+% \end{equation}
+% and
+% \begin{equation}
+% \mathbf{n} = \frac{\pixel - \proj_{\SilhoSensor}(\pixel,\pars)}{\|\pixel - \proj_{\SilhoSensor}(\pixel,\pars)\|_2}.
+% \label{eq:jacobian3d}
+% \end{equation}
+% 
+% 
+%  
+% 
+%
+\input{fig/collision.tex}
+% \vspace{-1cm}
+\paragraph*{Collision.} \Figure{collision} illustrates the necessary notation with a 2D example, where $\point_i$ and $\point_j$ are the end-points of the shortest segment between the two cylinders axes. The linearized energy is defined as
+% 
+\begin{equation*}
+\bar{E}_{\text{coll.}} = \omegacollision \sum_{\{i,j\}} \chi(i,j)\left(\mathbf{n}_i^T\left((\Jskel(\point_i) - \Jskel(\point_j)) \delta\pars + d\right)\right)^2
+\end{equation*}
+%
+where $\mathbf{n}_i$ is the surface normal at $\point_i$ (as shown in \Figure{collision}), and $\mathbf{d} = (\point_i - \point_j)$. 
+%  
+% 
+%  
+
+\vspace{-.15in}
+\section{Non-Linear Least Squares Optimization}
+\label{app:opt}
+To solve our optimization problem we use a Levenberg-Marquardt approach. We iteratively solve \Equation{tracking_optimization} using the approximate energies described in \Appendix{jacobians} through \Appendix{lindistance} leading to a damped least squares minimization
+%
+\begin{equation*}
+%\label{eq:tracking_optimization}
+\min_{\delta\pars} \: \bar{E}_{\text{3D}} + \bar{E}_{\text{2D}} + \bar{E}_{\text{wrist}} + \bar{E}_{\text{pose}} + \bar{E}_{\text{kin.}} + \bar{E}_{\text{temp.}} + \bar{E}_{\text{damp}},
+\end{equation*}
+%
+and update our hand pose using the update $\pars = \pars+\delta\pars$. \new{Note that since our energies are written in the form:
+% 
+\begin{equation*}
+\Sigma_i \bar{E}_i = \Sigma_i \|\jacobian_i \delta\pars -\residuals_i\|_2^2,
+\end{equation*}}
+% 
+our solve can be re-written as
+%
+\begin{equation}
+\delta\pars = 
+\left( \Sigma_i \jacobian_i^T\jacobian_i \right)^{-1}
+\left( \Sigma_i \jacobian_i^T\residuals_i \right) = 0.
+\label{eq:solve}
+\end{equation}
+To stabilize the optimization, we introduce a damping energy $\bar{E}_{\text{damp}} = \lambda\|\delta\pars\|_2^2$, where $\lambda = 100$.
+
+\vspace{-.15in}
+\new{
+\section{CPU/GPU Optimization}
+\label{app:gpu}
+Our technique elegantly de-couples the components of our optimization on CPU and GPU. With regards to \Figure{overview} only large-scale and trivially parallelizable tasks, like the computation of constraints associated with 2D/3D ICP correspondences are performed on GPU, while all others run efficiently on a \emph{single} CPU thread. In particular, the inversion in \Equation{solve} is performed on CPU by Cholesky factorization (Eigen3). As the final solve is performed on CPU, we designed our optimization to minimize memory transfers between CPU/GPU. First of all, note that although at each iteration we need to render an image of the cylinder model, the texture is already located on the GPU buffers. Furthermore, although the large ($\approx 20k \times 26$) Jacobian matrices associated with $E_{\text{3D}}$ and $E_{\text{2D}}$ are assembled on the GPU, a CuBLAS kernel is used to compute the much smaller ($26\times26$, $26\times1$) matrices $\jacobian_i^T\jacobian_i$ and $\jacobian_i^T\residuals_i$. Only these need to be transferred back to CPU for each solver iteration.}
+
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\endinput 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection*{Notation}
+Basic notation:
+\begin{itemize}
+    \item $\pixel$ is a pixel!!
+    \item $\point$ is a 3D point
+    \item $\pars \in R^{\color{red}27}$ hand parameter space, joint angles + global rigid
+    \item $\dpars \in R^{\color{red}27}$ computed differential update
+    \item $\PointsSensor, \PointsRender$: resp sensor and rendered 3D points
+    \item $\DepthSensor, \DepthRender$: resp sensor and rendered depth
+    \item $\SilhoSensor, \SilhoRender$: resp sensor and rendered silhouette
+
+	\item $\DataSensor=\{\PointsSensor, \SilhoSensor\}$ current data frame
+	\item $\history=\{\pars_{t-1}, \pars_{t-2}, ...\}$ tracking history
+	\item $\posespace$ pose space 
+    \item $\proj$ projection operator \AT{damn, $\posespace$ is taken}
+	\item $\handmodel$ is the model
+    \item $\mathcal{M}_r$ is the rendered model
+    \item $\mathcal{K}_r$ is the kinematic chain (i.e. skeleton) of $\mathcal{R}$
+\end{itemize}
+% 
+
+%%% Local Variables:  
+%%% mode: latex 
+%%% TeX-master: "../htrack" 
+%%% End: 
