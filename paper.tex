@@ -1,65 +1,12 @@
-%%% template.tex
-%%%
-%%% This LaTeX source document can be used as the basis for your technical
-%%% paper or abstract. Regardless of the length of your document, the commands
-%%% are all the same.
-%%% 
-%%% The "\documentclass" command is the first command in your file. If you want to 
-%%% prepare a version of your article with line numbers - a "review" version - 
-%%% include the "review" parameter:
-%%%    \documentclass[review]{acmsiggraph}
-%%%
-
-\documentclass{acmsiggraph}
-
-%%% Title of your article or abstract.
-
-\title{Exemplar-Based Structure-Aware Procedural Synthesis}
-\author{Submission \#00000}
-% \author{Stephen N. Spencer\thanks{e-mail:spencer@cs.washington.edu}\\Chair, ACM SIGGRAPH Publications Committee}
-\pdfauthor{Submission \#00000}
-
-%%% Used by the ``review'' variation; the online ID will be printed on 
-%%% every page of the content.
-\TOGonlineid{45678}
-
-% User-generated keywords.
-
-\keywords{radiosity, global illumination, constant time}
-
-% With the "\setcopyright" command the appropriate rights management text will be added
-% to your document.
-
-%\setcopyright{none}
-%\setcopyright{acmcopyright}
-%\setcopyright{acmlicensed}
-\setcopyright{rightsretained}
-%\setcopyright{usgov}
-%\setcopyright{usgovmixed}
-%\setcopyright{cagov}
-%\setcopyright{cagovmixed}
-%\setcopyright{rightsretained}
-
-% The year of publication in the "\copyrightyear" command.
-
-\copyrightyear{2016}
-
-%%% Conference information, from the completed rights management form.
-%%% The "\conferenceinfo" command has two parameters: 
-%%%    - conference name
-%%%    - conference date and location
-%%% The "\isbn" field includes the year and month after the article ISBN.
-
-\conferenceinfo{SIGGRAPH 2016 Posters}{July 24-28, 2016, Anaheim, CA} 
-\isbn{978-1-4503-ABCD-E/16/07} 
-\doi{http://doi.acm.org/10.1145/9999997.9999999}
-
+% UPDATED May 25, 2018 (SIGGRAPH Asia submission)
+\documentclass[acmtog, review]{acmart}
 \input{sec/tweaks}
+\input{sec/math}
+\input{sec/frontmatter}
 \begin{document}
 \input{fig/teaser/item.tex}
-\maketitle
 \input{sec/abstract}
-\input{sec/metadata}
+\maketitle
 \input{sec/introduction}
 \input{sec/related}
 \input{sec/overview}
@@ -67,6 +14,6 @@
 \input{sec/evaluation}
 \input{sec/conclusions}
 \input{sec/acks}
-\bibliographystyle{acmsiggraph}
+\bibliographystyle{ACM-Reference-Format}
 \bibliography{paper}
 \end{document}
